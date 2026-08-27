@@ -1,18 +1,55 @@
 package com.curso.learntech.domain;
 
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Objects;
 
+@Entity
+@Table(
+        name = "curso",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_curso_codigo_curso",
+                columnNames = "codigo_curso"
+        )
+)
 public class Curso {
-    private final int codigoCurso;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "codigo_curso", nullable = false, length = 50)
+    private int codigoCurso;
+
+    @Column(nullable = false, length = 150)
     private String descricao;
+
+    @Column(name = "carga_horaria", nullable = false, precision = 18, scale = 3)
     private BigDecimal cargaHoraria;
+
+    @Column(name = "valor_curso", nullable = false, precision = 18, scale = 2)
     private BigDecimal valorCurso;
-    private final LocalDate dataCadastro;
+
+    @Column(name = "data_cadastro", nullable = false)
+    private LocalDate dataCadastro;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private Status status;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "categoria_curso_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_curso_categora_curso")
+    )
     private CategoriaCurso categoria;
+
+    protected Curso(){
+    }
 
     public Curso(int codigoCurso,
                  String descricao,
@@ -75,6 +112,10 @@ public class Curso {
         this.categoria = categoria;
     }
 
+    public Long getId(){
+        return id;
+    }
+
     public int getCodigoCurso() {
         return codigoCurso;
     }
@@ -107,7 +148,7 @@ public class Curso {
         if (texto == null || texto.isBlank()) {
             throw new IllegalArgumentException(mensagem);
         }
-        return texto.trim();
+        return texto;
     }
 
     private static BigDecimal validarNaoNegativo(BigDecimal valor, String mensagem) {

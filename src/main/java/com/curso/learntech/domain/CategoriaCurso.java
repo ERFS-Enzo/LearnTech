@@ -1,13 +1,31 @@
 package com.curso.learntech.domain;
 
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Entity
+@Table(name = "categoria_curso")
 public class CategoriaCurso {
-    private final String nome;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 120)
+    private String nome;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private Status status;
+
+    @OneToMany(mappedBy = "categoria", fetch = FetchType.LAZY)
     private final List<Curso> cursos = new ArrayList<>();
+
+    protected CategoriaCurso(){
+    }
 
     public CategoriaCurso(String nome){
         this.nome = validarTextoObrigatorio(nome, "Nome é campo obrigatório!");
@@ -40,6 +58,10 @@ public class CategoriaCurso {
         this.status = Status.INATIVO;
     }
 
+    public Long getId(){
+        return id;
+    }
+
     public String getNome() {
         return nome;
     }
@@ -56,7 +78,7 @@ public class CategoriaCurso {
         if(texto == null || texto.isBlank()){
             throw new IllegalArgumentException(mensagem);
         }
-        return mensagem;
+        return texto;
     }
 
 }

@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-01-add-fabricante-produto
+      author: enzo
+      changes:
+        - addColumn:
+            tableName: curso
+            columns:
+              - column:
+                  name: autor
+                  type: VARCHAR(120)
+      rollback:
+        - dropColumn:
+            tableName: curso
+            columnName: autor

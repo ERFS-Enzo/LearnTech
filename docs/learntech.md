@@ -34,3 +34,16 @@
 1. Curso: C# e .NET para Iniciantes — Categoria: Programação básica — Código: CURSO001 — Carga horária: 40 horas — Preço: R$ 149,90 — Status: ativo
 2. Curso: Desenvolvimento de APIs REST com ASP.NET Core — Categoria: Desenvolvimento Web — Código: CURSO002 — Carga horária: 30 horas — Preço: R$ 129,90 — Status: ativo
 3. Curso: Banco de Dados com SQL — Categoria: Banco de Dados — Código: CURSO003 — Carga horária: 25 horas — Preço: R$ 99,90 — Status: ativo
+
+
+| **Elemento do Suporte OS** | **Elemento do meu tema** | **Regra correspondente** |
+|---|-------------------------|---|
+| `GrupoProduto` | `CategoriaCurso`        | classifica a entidade principal |
+| `Produto` | `Curso`                 | entidade principal |
+| `codigoBarras` | `codigoCurso`           | identificação única de negócio |
+| `descricao` | `descricao`             | descrição compreensível |
+| `saldoEstoque` | `cargaHoraria`          | medida quantitativa |
+| `valorUnitario` | `valorCurso`            | valor monetário |
+| `dataCadastro` | `dataCadastro`          | data relevante |
+| `Status` | `Status`                | estados válidos |
+| `calcularValorEstoque` | `calcularValorPorHora` | cálculo que combina carga horária e valor do curso |

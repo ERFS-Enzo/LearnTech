@@ -32,7 +32,7 @@ public class CategoriaCurso {
         this.status = status.ATIVO;
     }
 
-    public void adicionarCategoria(Curso curso){
+    public void adicionarCurso(Curso curso){
         Objects.requireNonNull(curso, "curso é obrigatória!");
 
         boolean codigoJaUtilizado = cursos.stream()

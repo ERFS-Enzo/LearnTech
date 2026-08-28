@@ -31,7 +31,7 @@ class PersistenciaJpaTest {
                 LocalDate.of(2026, 3, 10),
                 Status.ATIVO);
 
-        categoria.adicionarCategoria(curso);
+        categoria.adicionarCurso(curso);
         entityManager.persist(categoria);
         entityManager.persist(curso);
         entityManager.flush();

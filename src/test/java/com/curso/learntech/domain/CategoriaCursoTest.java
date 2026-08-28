@@ -13,7 +13,7 @@ class CategoriaCursoTest {
         CategoriaCurso categoria = new CategoriaCurso("Programação");
         Curso curso = novoCurso(1);
 
-        categoria.adicionarCategoria(curso);
+        categoria.adicionarCurso(curso);
 
         assertEquals(1, categoria.getCursos().size());
         assertSame(curso, categoria.getCursos().get(0));
@@ -26,17 +26,17 @@ class CategoriaCursoTest {
 
         assertThrows(
                 NullPointerException.class,
-                () -> categoria.adicionarCategoria(null));
+                () -> categoria.adicionarCurso(null));
     }
 
     @Test
     void naoDeveAdicionarDoisCursosComOMesmoCodigo() {
         CategoriaCurso categoria = new CategoriaCurso("Programação");
-        categoria.adicionarCategoria(novoCurso(1));
+        categoria.adicionarCurso(novoCurso(1));
 
         IllegalArgumentException excecao = assertThrows(
                 IllegalArgumentException.class,
-                () -> categoria.adicionarCategoria(novoCurso(1)));
+                () -> categoria.adicionarCurso(novoCurso(1)));
 
         assertEquals(
                 "Codigo do curso ja utilizado!",
@@ -49,11 +49,11 @@ class CategoriaCursoTest {
         CategoriaCurso desenvolvimentoWeb = new CategoriaCurso("Desenvolvimento Web");
         Curso curso = novoCurso(1);
 
-        programacao.adicionarCategoria(curso);
+        programacao.adicionarCurso(curso);
 
         IllegalStateException excecao = assertThrows(
                 IllegalStateException.class,
-                () -> desenvolvimentoWeb.adicionarCategoria(curso));
+                () -> desenvolvimentoWeb.adicionarCurso(curso));
 
         assertEquals(
                 "O curso já pertence a outra categoria",
@@ -65,7 +65,7 @@ class CategoriaCursoTest {
         CategoriaCurso categoria = new CategoriaCurso("Programação");
         Curso curso = novoCurso(1);
 
-        categoria.adicionarCategoria(curso);
+        categoria.adicionarCurso(curso);
 
         assertThrows(
                 UnsupportedOperationException.class,

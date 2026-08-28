@@ -48,7 +48,7 @@ public class Curso {
     )
     private CategoriaCurso categoria;
 
-    protected Curso(){
+    public Curso(){
     }
 
     public Curso(int codigoCurso,

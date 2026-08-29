@@ -4,4 +4,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/changes/002-create-curso.yaml
   - include:
-      file: db/changelog/changes/003-add-autor-curso.yaml
+      file: db/changelog/changes/003-add-plataforma-curso.yaml
+  - include:
+      file: db/changelog/changes/004-add-autor-e-quantidade-modulos.yaml

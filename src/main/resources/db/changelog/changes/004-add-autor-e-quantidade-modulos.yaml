@@ -1,0 +1,108 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-01-create-table-autor
+      author: enzo
+      changes:
+        - createTable:
+            tableName: autor
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_autor
+              - column:
+                  name: nome_autor
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cpf
+                  type: VARCHAR(11)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 004-02-add-unique-constraint-autor-cpf
+      author: enzo
+      changes:
+        - addUniqueConstraint:
+            tableName: autor
+            columnNames: cpf
+            constraintName: uk_autor_cpf
+
+  - changeSet:
+      id: 004-03-add-check-constraint-autor-status
+      author: enzo
+      changes:
+        - sql:
+            sql: ALTER TABLE autor ADD CONSTRAINT chk_autor_status CHECK (status IN ('ATIVO', 'INATIVO'));
+
+  - changeSet:
+      id: 004-04-add-quantidade-modulos-curso
+      author: enzo
+      changes:
+        - addColumn:
+            tableName: curso
+            columns:
+              - column:
+                  name: quantidade_modulos
+                  type: INTEGER
+
+  - changeSet:
+      id: 004-05-fill-quantidade-modulos-curso
+      author: enzo
+      changes:
+        - update:
+            tableName: curso
+            columns:
+              - column:
+                  name: quantidade_modulos
+                  valueNumeric: 0
+            where: quantidade_modulos IS NULL
+
+  - changeSet:
+      id: 004-06-not-null-quantidade-modulos-curso
+      author: enzo
+      changes:
+        - addNotNullConstraint:
+            tableName: curso
+            columnName: quantidade_modulos
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 004-07-add-check-constraint-curso-quantidade-modulos
+      author: enzo
+      changes:
+        - sql:
+            sql: ALTER TABLE curso ADD CONSTRAINT chk_curso_quantidade_modulos CHECK (quantidade_modulos >= 0);
+
+  - changeSet:
+      id: 004-08-add-column-autor-id-curso
+      author: enzo
+      changes:
+        - addColumn:
+            tableName: curso
+            columns:
+              - column:
+                  name: autor_id
+                  type: BIGINT
+
+  - changeSet:
+      id: 004-09-add-foreign-key-curso-autor
+      author: enzo
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: curso
+            baseColumnNames: autor_id
+            referencedTableName: autor
+            referencedColumnNames: id
+            constraintName: fk_curso_autor
+            onDelete: RESTRICT

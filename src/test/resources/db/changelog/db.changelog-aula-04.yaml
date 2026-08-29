@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: src/main/resources/db/changelog/changes/001-create-categoria-curso.yaml
+  - include:
+      file: src/main/resources/db/changelog/changes/002-create-curso.yaml

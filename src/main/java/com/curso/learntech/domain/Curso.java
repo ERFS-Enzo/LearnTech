@@ -48,6 +48,17 @@ public class Curso {
     )
     private CategoriaCurso categoria;
 
+    @Column(name = "quantidade_modulos", nullable = false)
+    private int quantidadeModulos;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "autor_id",
+            foreignKey = @ForeignKey(name = "fk_curso_autor")
+    )
+    private Autor autor;
+
+
     public Curso(){
     }
 

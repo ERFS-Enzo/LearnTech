@@ -1,8 +1,10 @@
 package com.curso.learntech.application;
 
+import com.curso.learntech.domain.Autor;
 import com.curso.learntech.domain.CategoriaCurso;
 import com.curso.learntech.domain.Curso;
 import com.curso.learntech.domain.Status;
+import com.curso.learntech.repository.AutorRepository;
 import com.curso.learntech.repository.CategoriaCursoRepository;
 import com.curso.learntech.repository.CursoRepository;
 import com.curso.learntech.repository.RecursoNaoEncontradoException;
@@ -27,20 +29,27 @@ class CursoServiceTest {
     @Autowired
     private CategoriaCursoRepository categoriaRepository;
 
+    @Autowired
+    private AutorRepository autorRepository;
+
     @Test
     void deveCadastrarCursoComCategoria() {
         CategoriaCurso categoria = categoriaRepository.save(
                 new CategoriaCurso("backend"));
 
+        Autor autor = autorRepository.save(
+                new Autor("Balta", "00000000000"));
+
         Curso cadastrado = cursoService.cadastrar(
                 novoCurso(999),
-                categoria.getId());
+                categoria.getId(),
+                autor.getId());
 
         assertNotNull(cadastrado.getId());
         assertEquals(categoria.getId(), cadastrado.getCategoria().getId());
         assertThrows(
                 RecursoNaoEncontradoException.class,
-                () -> cursoService.cadastrar(novoCurso(1), Long.MAX_VALUE));
+                () -> cursoService.cadastrar(novoCurso(1), Long.MAX_VALUE, Long.MAX_VALUE));
 
         assertFalse(cursoRepository.existsByCodigoCurso(novoCurso(1).getCodigoCurso()));
     }
@@ -52,6 +61,7 @@ class CursoServiceTest {
                 new java.math.BigDecimal("40"),
                 new java.math.BigDecimal("149.90"),
                 java.time.LocalDate.of(2026, 8, 20),
+                3,
                 Status.ATIVO);
     }
 }

@@ -29,6 +29,7 @@ class PersistenciaJpaTest {
                 new BigDecimal("50.00"),
                 new BigDecimal("89.90"),
                 LocalDate.of(2026, 3, 10),
+                7,
                 Status.ATIVO);
 
         categoria.adicionarCurso(curso);

@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 public record CursoRequest(
         @NotNull(message = "Código do curso é obrigatório")
-        @Size(max = 50, message = "Código do curso deve possuir no máximo 50 caracteres")
+        @PositiveOrZero(message = "Código do curso não pode ser negativo")
         int codigoCurso,
 
         @NotBlank(message = "Descrição é obrigatória")

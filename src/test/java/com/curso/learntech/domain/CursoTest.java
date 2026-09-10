@@ -38,6 +38,7 @@ class CursoTest {
                         new BigDecimal("40"),
                         new BigDecimal("149.90"),
                         LocalDate.of(2026, 8, 20),
+                        5,
                         Status.ATIVO));
     }
 
@@ -119,6 +120,7 @@ class CursoTest {
                 new BigDecimal(cargaHoraria),
                 new BigDecimal(preco),
                 LocalDate.of(2026, 8, 20),
+                9,
                 Status.ATIVO);
     }
 }

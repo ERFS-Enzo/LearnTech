@@ -67,6 +67,7 @@ public class Curso {
                  BigDecimal cargaHoraria,
                  BigDecimal valorCurso,
                  LocalDate dataCadastro,
+                 int quantidadeModulos,
                  Status status) {
         this.codigoCurso = validarCodigoCurso(
                 codigoCurso,
@@ -153,6 +154,14 @@ public class Curso {
 
     public CategoriaCurso getCategoria() {
         return categoria;
+    }
+
+    public Autor getAutor() {
+        return autor;
+    }
+
+    public int getQuantidadeModulos() {
+        return quantidadeModulos;
     }
 
     private static String validarTextoObrigatorio(String texto, String mensagem) {

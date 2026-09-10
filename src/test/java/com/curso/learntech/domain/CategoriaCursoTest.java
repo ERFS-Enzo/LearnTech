@@ -79,6 +79,7 @@ class CategoriaCursoTest {
                 new java.math.BigDecimal("40"),
                 new java.math.BigDecimal("149.90"),
                 java.time.LocalDate.of(2026, 8, 20),
+                10,
                 Status.ATIVO);
     }
 }

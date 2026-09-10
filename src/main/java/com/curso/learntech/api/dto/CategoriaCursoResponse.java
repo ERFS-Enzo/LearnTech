@@ -9,7 +9,6 @@ import java.util.List;
 public record CategoriaCursoResponse(
         Long id,
         String nome,
-        Status status,
-        List<Curso> cursos
+        Status status
 ) {
 }

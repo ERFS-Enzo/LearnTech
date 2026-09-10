@@ -27,7 +27,7 @@ public class Autor {
     protected Autor() {
     }
 
-    public Autor(String razaoSocial, String cnpj) {
+    public Autor(String nomeAutor, String cpf) {
         this.nomeAutor = validarTextoObrigatorio(nomeAutor);
         this.cpf = validarCpf(cpf);
         this.status = Status.ATIVO;

@@ -2,12 +2,11 @@ package com.curso.learntech.application;
 
 import com.curso.learntech.domain.CategoriaCurso;
 import com.curso.learntech.domain.Curso;
-import com.curso.learntech.repository.CategoriaCursoRepository;
-import com.curso.learntech.repository.CursoRepository;
-import com.curso.learntech.repository.RecursoDuplicadoException;
-import com.curso.learntech.repository.RecursoNaoEncontradoException;
-import jakarta.transaction.Transactional;
+import com.curso.learntech.repository.*;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CursoService {
@@ -20,7 +19,7 @@ public class CursoService {
     }
 
     @Transactional
-    public Curso cadastrar(Curso curso, Long categoriaId){
+    public Curso cadastrar(Curso curso, Long categoriaId, Long autorId){
         if (cursoRepository.existsByCodigoCurso(
                 curso.getCodigoCurso())) {
             throw new RecursoDuplicadoException(
@@ -34,4 +33,16 @@ public class CursoService {
         categoria.adicionarCurso(curso);
         return cursoRepository.save(curso);
     }
+
+    @Transactional(readOnly = true)
+    public Curso buscarPorId(Long id) {
+        return cursoRepository.findByIdComCategoria(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Curso não encontrado"));
+    }
+
+    @Transactional
+    public List<Curso> listar(){
+        return cursoRepository.findAllComCategoriaEAutor();
+    }
+
 }

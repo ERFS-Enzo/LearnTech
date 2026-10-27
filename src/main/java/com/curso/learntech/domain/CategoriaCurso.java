@@ -29,7 +29,7 @@ public class CategoriaCurso {
 
     public CategoriaCurso(String nome){
         this.nome = validarTextoObrigatorio(nome, "Nome é campo obrigatório!");
-        this.status = status.ATIVO;
+        this.status = Status.ATIVO;
     }
 
     public void adicionarCurso(Curso curso){

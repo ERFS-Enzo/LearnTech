@@ -7,25 +7,25 @@ import java.math.BigDecimal;
 public record CursoRequest(
         @NotNull(message = "Código do curso é obrigatório")
         @PositiveOrZero(message = "Código do curso não pode ser negativo")
-        int codigoCurso,
+        Integer codigoCurso,
 
         @NotBlank(message = "Descrição é obrigatória")
         @Size(max = 150, message = "Descrição deve possuir no máximo 150 caracteres")
         String descricao,
 
         @NotNull(message = "Carga Horária é obrigatória")
-        @PositiveOrZero(message = "Carga Horária não pode ser negativo")
+        @Positive(message = "Carga Horária deve ser maior que zero")
         BigDecimal cargaHoraria,
 
-        @NotNull(message = "Valor do curo é obrigatório")
+        @NotNull(message = "Valor do curso é obrigatório")
         @PositiveOrZero(message = "Valor do curso não pode ser negativo")
         BigDecimal valorCurso,
 
-        @NotNull(message = "Quantidade de módulos é obrigatório")
-        @PositiveOrZero(message = "Quantidade de módulos não pode ser negativo")
-        int quantidadeModulos,
+        @NotNull(message = "Quantidade de módulos é obrigatória")
+        @PositiveOrZero(message = "Quantidade de módulos não pode ser negativa")
+        Integer quantidadeModulos,
 
-        @NotNull(message = "Categoria é obrigatório")
+        @NotNull(message = "Categoria é obrigatória")
         @Positive(message = "Identificador da categoria deve ser positivo")
         Long categoriaId,
 

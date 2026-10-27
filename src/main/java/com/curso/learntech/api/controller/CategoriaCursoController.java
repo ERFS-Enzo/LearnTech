@@ -28,11 +28,10 @@ public class CategoriaCursoController {
 
     @PostMapping
     public ResponseEntity<CategoriaCursoResponse> cadastrar(
-            @Valid @RequestBody CategoriaCursoRequest request){
-        CategoriaCurso categoriaCurso = mapper.toEntity(request);
-        CategoriaCurso cadastrado = service.cadastrar(categoriaCurso.getNome());
+            @Valid @RequestBody CategoriaCursoRequest request) {
+        CategoriaCurso cadastrado = service.cadastrar(request.nome());
 
-        URI location = URI.create("/api/categorias/" + cadastrado.getNome());
+        URI location = URI.create("/api/categorias/" + cadastrado.getId());
         return ResponseEntity.created(location).body(mapper.toResponse(cadastrado));
     }
 

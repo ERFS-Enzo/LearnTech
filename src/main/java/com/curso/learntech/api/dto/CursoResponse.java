@@ -11,6 +11,7 @@ public record CursoResponse(
         String descricao,
         BigDecimal cargaHoraria,
         BigDecimal valorCurso,
+        BigDecimal valorPorHora,
         int quantidadeModulos,
         LocalDate dataCadastro,
         Status status,
@@ -18,6 +19,5 @@ public record CursoResponse(
         String categoriaNome,
         Long autorId,
         String autorNome
-
 ) {
 }

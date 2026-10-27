@@ -31,7 +31,7 @@
 
 ## Três exemplos de registros
 
-1. Curso: C# e .NET para Iniciantes — Categoria: Programação básica — Código: CURSO001 — Carga horária: 40 horas — Preço: R$ 149,90 — Status: ativo
+1. Curso: C# e .NET para Iniciantes — Categoria: Programação básica — Código: 01 — Carga horária: 40 horas — Preço: R$ 149,90 — Status: ativo
 2. Curso: Desenvolvimento de APIs REST com ASP.NET Core — Categoria: Desenvolvimento Web — Código: CURSO002 — Carga horária: 30 horas — Preço: R$ 129,90 — Status: ativo
 3. Curso: Banco de Dados com SQL — Categoria: Banco de Dados — Código: CURSO003 — Carga horária: 25 horas — Preço: R$ 99,90 — Status: ativo
 

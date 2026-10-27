@@ -21,7 +21,7 @@ public class Curso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "codigo_curso", nullable = false, length = 50)
+    @Column(name = "codigo_curso", nullable = false)
     private int codigoCurso;
 
     @Column(nullable = false, length = 150)
@@ -44,7 +44,7 @@ public class Curso {
     @JoinColumn(
             name = "categoria_curso_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_curso_categora_curso")
+            foreignKey = @ForeignKey(name = "fk_curso_categoria_curso")
     )
     private CategoriaCurso categoria;
 
@@ -58,8 +58,7 @@ public class Curso {
     )
     private Autor autor;
 
-
-    public Curso(){
+    protected Curso() {
     }
 
     public Curso(int codigoCurso,
@@ -71,38 +70,43 @@ public class Curso {
                  Status status) {
         this.codigoCurso = validarCodigoCurso(
                 codigoCurso,
-                "Código do curso é obrigatório");
+                "Código do curso não pode ser negativo");
         this.descricao = validarTextoObrigatorio(
                 descricao,
                 "Descrição é obrigatória");
-        this.cargaHoraria = validarNaoNegativo(
+        this.cargaHoraria = validarPositivo(
                 cargaHoraria,
-                "Carga horária é obrigatória");
+                "Carga horária deve ser maior que zero");
         this.valorCurso = validarNaoNegativo(
                 valorCurso,
                 "Valor do Curso não pode ser negativo");
         this.dataCadastro = Objects.requireNonNull(
                 dataCadastro,
                 "Data de cadastro é obrigatória");
-        this.status = Status.ATIVO;
+        this.quantidadeModulos = validarQuantidadeModulos(quantidadeModulos);
+        this.status = Objects.requireNonNull(status, "Status é obrigatório");
     }
 
-    public void alterarDescricao(String novaDescricao){
+    public void alterarDescricao(String novaDescricao) {
         this.descricao = validarTextoObrigatorio(
                 novaDescricao,
                 "Descrição é obrigatória");
     }
 
     public void alterarCargaHoraria(BigDecimal novaCargaHoraria) {
-        this.cargaHoraria = validarNaoNegativo(
+        this.cargaHoraria = validarPositivo(
                 novaCargaHoraria,
-                "Carga horária é obrigatória");
+                "Carga horária deve ser maior que zero");
     }
 
     public void alterarValorCurso(BigDecimal novoValorCurso) {
         this.valorCurso = validarNaoNegativo(
                 novoValorCurso,
                 "O valor do curso não pode ser negativo");
+    }
+
+    public void atribuirAutor(Autor autor) {
+        this.autor = Objects.requireNonNull(autor, "Autor é obrigatório");
     }
 
     public void ativar() {
@@ -124,7 +128,7 @@ public class Curso {
         this.categoria = categoria;
     }
 
-    public Long getId(){
+    public Long getId() {
         return id;
     }
 
@@ -179,24 +183,30 @@ public class Curso {
         return valor;
     }
 
-    private static void validarPositivo(BigDecimal valor, String mensagem) {
+    private static BigDecimal validarPositivo(BigDecimal valor, String mensagem) {
         Objects.requireNonNull(valor, mensagem);
         if (valor.signum() <= 0) {
-            throw new IllegalArgumentException(mensagem);
-        }
-    }
-
-    private static int validarCodigoCurso(int valor, String mensagem){
-        Objects.requireNonNull(valor, mensagem);
-        if(valor < 0){
             throw new IllegalArgumentException(mensagem);
         }
         return valor;
     }
 
-    public BigDecimal calcularValorPorHora() {
-        return valorCurso
-                .divide(cargaHoraria, 2, RoundingMode.HALF_UP);
+    private static int validarCodigoCurso(int valor, String mensagem) {
+        if (valor < 0) {
+            throw new IllegalArgumentException(mensagem);
+        }
+        return valor;
     }
 
+    private static int validarQuantidadeModulos(int valor) {
+        if (valor < 0) {
+            throw new IllegalArgumentException(
+                    "Quantidade de módulos não pode ser negativa");
+        }
+        return valor;
+    }
+
+    public BigDecimal calcularValorPorHora() {
+        return valorCurso.divide(cargaHoraria, 2, RoundingMode.HALF_UP);
+    }
 }

@@ -4,8 +4,8 @@ import com.curso.learntech.domain.CategoriaCurso;
 import com.curso.learntech.repository.CategoriaCursoRepository;
 import com.curso.learntech.repository.RecursoDuplicadoException;
 import com.curso.learntech.repository.RecursoNaoEncontradoException;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,24 +18,22 @@ public class CategoriaCursoService {
     }
 
     @Transactional
-    public CategoriaCurso cadastrar(String nome){
-        if(repository.existsByNomeIgnoreCase(nome)){
-            throw new RecursoDuplicadoException(
-                    "Nome da categoria já cadastrada");
+    public CategoriaCurso cadastrar(String nome) {
+        if (repository.existsByNomeIgnoreCase(nome)) {
+            throw new RecursoDuplicadoException("Nome da categoria já cadastrada");
         }
         return repository.save(new CategoriaCurso(nome));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public CategoriaCurso buscarPorId(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Categoria de curso não encontrado"));
     }
 
-    @Transactional
-    public List<CategoriaCurso> listar(){
+    @Transactional(readOnly = true)
+    public List<CategoriaCurso> listar() {
         return repository.findAll();
     }
-
 }

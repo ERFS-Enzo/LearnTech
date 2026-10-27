@@ -46,6 +46,8 @@ class CursoServiceTest {
                 autor.getId());
 
         assertNotNull(cadastrado.getId());
+        assertEquals(autor.getId(), cadastrado.getAutor().getId());
+        assertEquals(3, cadastrado.getQuantidadeModulos());
         assertEquals(categoria.getId(), cadastrado.getCategoria().getId());
         assertThrows(
                 RecursoNaoEncontradoException.class,

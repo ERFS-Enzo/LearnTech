@@ -20,6 +20,7 @@ public interface CursoRepository extends JpaRepository<Curso, Long> {
         SELECT c
         FROM Curso c
         JOIN FETCH c.categoria
+        LEFT JOIN FETCH c.autor
         WHERE c.id = :id
     """)
     Optional<Curso> findByIdComCategoria(@Param("id") Long id);

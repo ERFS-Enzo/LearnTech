@@ -25,14 +25,10 @@ public class AutorController {
 
     @PostMapping
     public ResponseEntity<AutorResponse> cadastrar(
-            @Valid @RequestBody AutorRequest request){
-        Autor autor = mapper.toEntity(request);
-        Autor cadastrado = service.cadastrar(
-                autor,
-                autor.getId(),
-                autor.getNomeAutor());
+            @Valid @RequestBody AutorRequest request) {
+        Autor cadastrado = service.cadastrar(mapper.toEntity(request));
 
-        URI location = URI.create("/api/autores/" + cadastrado.getNomeAutor());
+        URI location = URI.create("/api/autores/" + cadastrado.getId());
         return ResponseEntity.created(location).body(mapper.toResponse(cadastrado));
     }
 

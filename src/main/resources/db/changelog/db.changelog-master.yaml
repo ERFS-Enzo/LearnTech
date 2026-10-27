@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changes/003-add-plataforma-curso.yaml
   - include:
       file: db/changelog/changes/004-add-autor-e-quantidade-modulos.yaml
+  - include:
+      file: db/changelog/changes/005-drop-plataforma-curso.yaml

@@ -24,7 +24,7 @@ public class CursoMapper {
         );
     }
 
-    public CursoResponse toResponse(Curso curso){
+    public CursoResponse toResponse(Curso curso) {
         Autor autor = curso.getAutor();
 
         return new CursoResponse(
@@ -33,6 +33,7 @@ public class CursoMapper {
                 curso.getDescricao(),
                 curso.getCargaHoraria(),
                 curso.getValorCurso(),
+                curso.calcularValorPorHora(),
                 curso.getQuantidadeModulos(),
                 curso.getDataCadastro(),
                 curso.getStatus(),

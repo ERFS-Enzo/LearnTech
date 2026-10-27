@@ -4,6 +4,7 @@ import com.curso.learntech.api.dto.ApiError;
 import com.curso.learntech.repository.RecursoDuplicadoException;
 import com.curso.learntech.repository.RecursoNaoEncontradoException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,80 +18,73 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-public class ApiExceptionHandler{
+public class ApiExceptionHandler {
 
-    // 404 -> Trata erros de recurso não encontrado (ex: ID inexistente)
+    // 404 -> recurso não encontrado (ex: ID inexistente)
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     public ResponseEntity<ApiError> handleRecursoNaoEncontrado(
             RecursoNaoEncontradoException ex, HttpServletRequest request) {
-
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        ApiError error = new ApiError(
-                Instant.now(),
-                status.value(),
-                "Not Found",
-                ex.getMessage(),
-                request.getRequestURI(),
-                null
-        );
-        return ResponseEntity.status(status).body(error);
+        return resposta(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), request, null);
     }
 
-    // 409 -> Trata conflitos de duplicação (ex: código de barras ou CPF já cadastrado)
+    // 409 -> valor que deve ser único já cadastrado (ex: código do curso, CPF)
     @ExceptionHandler(RecursoDuplicadoException.class)
     public ResponseEntity<ApiError> handleRecursoDuplicado(
             RecursoDuplicadoException ex, HttpServletRequest request) {
-
-        HttpStatus status = HttpStatus.CONFLICT;
-        ApiError error = new ApiError(
-                Instant.now(),
-                status.value(),
-                "Conflict",
-                ex.getMessage(),
-                request.getRequestURI(),
-                null
-        );
-        return ResponseEntity.status(status).body(error);
+        return resposta(HttpStatus.CONFLICT, "Conflict", ex.getMessage(), request, null);
     }
 
-    // 400 -> Trata erros de validação dos DTOs (@Valid / @NotBlank / etc.)
+    // 400 -> validação dos DTOs (@Valid, @NotBlank, etc.)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidacao(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-        HttpStatus status = HttpStatus.BAD_REQUEST;
         Map<String, String> fields = new HashMap<>();
-
-        // Mapeia cada campo que falhou no teste para o seu erro correspondente
-        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-            fields.put(error.getField(), error.getDefaultMessage());
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            fields.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
 
-        ApiError error = new ApiError(
-                Instant.now(),
-                status.value(),
-                "Bad Request",
-                "Um ou mais campos são inválidos",
-                request.getRequestURI(),
-                fields
-        );
-        return ResponseEntity.status(status).body(error);
+        return resposta(HttpStatus.BAD_REQUEST, "Bad Request",
+                "Um ou mais campos são inválidos", request, fields);
     }
 
-    // 400 -> Trata JSON malformado (ex: vírgula ou chave faltando)
+    // 400 -> JSON malformado
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiError> handleJsonInvalido(
             HttpMessageNotReadableException ex, HttpServletRequest request) {
+        return resposta(HttpStatus.BAD_REQUEST, "Bad Request",
+                "Mensagem JSON malformada ou sintaxe inválida", request, null);
+    }
 
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+    // 400 -> regra de domínio violada (ex: valor negativo)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleRegraDeDominio(
+            IllegalArgumentException ex, HttpServletRequest request) {
+        return resposta(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage(), request, null);
+    }
+
+    // 409 -> estado inválido ou violação de unicidade no banco
+    @ExceptionHandler({IllegalStateException.class, DataIntegrityViolationException.class})
+    public ResponseEntity<ApiError> handleConflitoDeDados(
+            Exception ex, HttpServletRequest request) {
+        return resposta(HttpStatus.CONFLICT, "Conflict",
+                "Operação conflita com dados já existentes", request, null);
+    }
+
+    private ResponseEntity<ApiError> resposta(
+            HttpStatus status,
+            String tipo,
+            String mensagem,
+            HttpServletRequest request,
+            Map<String, String> fields) {
+
         ApiError error = new ApiError(
                 Instant.now(),
                 status.value(),
-                "Bad Request",
-                "Mensagem JSON malformada ou sintaxe inválida",
+                tipo,
+                mensagem,
                 request.getRequestURI(),
-                null
-        );
+                fields);
         return ResponseEntity.status(status).body(error);
     }
 }

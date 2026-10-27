@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-01-drop-plataforma-curso
+      author: enzo
+      changes:
+        - dropColumn:
+            tableName: curso
+            columnName: plataforma
+      rollback:
+        - addColumn:
+            tableName: curso
+            columns:
+              - column:
+                  name: plataforma
+                  type: VARCHAR(120)

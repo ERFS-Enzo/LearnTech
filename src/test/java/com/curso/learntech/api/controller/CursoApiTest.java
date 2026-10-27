@@ -1,5 +1,6 @@
 package com.curso.learntech.api.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import com.curso.learntech.domain.Autor;
 import com.curso.learntech.domain.CategoriaCurso;
 import com.curso.learntech.repository.AutorRepository;
@@ -57,5 +58,58 @@ class CursoApiTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.codigoCurso").value("1"));
+    }
+
+    @Test
+    void deveRetornar400QuandoDadosInvalidos() throws Exception {
+        String json = """
+                {
+                  "codigoCurso": 1,
+                  "descricao": "",
+                  "cargaHoraria": 10,
+                  "valorCurso": -5,
+                  "quantidadeModulos": 3,
+                  "categoriaId": 1
+                }
+                """;
+
+        mockMvc.perform(post("/api/cursos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fields.descricao").exists())
+                .andExpect(jsonPath("$.fields.valorCurso").exists());
+    }
+
+    @Test
+    void deveRetornar404QuandoCursoNaoExiste() throws Exception {
+        mockMvc.perform(get("/api/cursos/{id}", Long.MAX_VALUE))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deveRetornar409QuandoCodigoDoCursoJaExiste() throws Exception {
+        CategoriaCurso categoria = categoriaRepository.save(new CategoriaCurso("Categoria 409"));
+
+        String json = """
+                {
+                  "codigoCurso": 77,
+                  "descricao": "Curso duplicado",
+                  "cargaHoraria": 10,
+                  "valorCurso": 49.90,
+                  "quantidadeModulos": 2,
+                  "categoriaId": %d
+                }
+                """.formatted(categoria.getId());
+
+        mockMvc.perform(post("/api/cursos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/cursos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isConflict());
     }
 }

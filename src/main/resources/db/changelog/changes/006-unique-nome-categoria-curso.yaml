@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-01-unique-nome-normalizado-categoria-curso
+      author: enzo
+      comment: Garante unicidade do nome da categoria sem diferenciar maiúsculas.
+      changes:
+        - sql:
+            sql: >
+              CREATE UNIQUE INDEX uk_categoria_curso_nome_lower
+              ON categoria_curso (LOWER(BTRIM(nome)))
+      rollback:
+        - sql:
+            sql: >
+              DROP INDEX uk_categoria_curso_nome_lower

@@ -24,33 +24,47 @@ public class CategoriaCurso {
     @OneToMany(mappedBy = "categoria", fetch = FetchType.LAZY)
     private final List<Curso> cursos = new ArrayList<>();
 
-    protected CategoriaCurso(){
+    protected CategoriaCurso() {
     }
 
-    public CategoriaCurso(String nome){
+    public CategoriaCurso(String nome) {
         this.nome = validarTextoObrigatorio(nome, "Nome é campo obrigatório!");
         this.status = Status.ATIVO;
     }
 
-    public void adicionarCurso(Curso curso){
+    public void alterarNome(String novoNome) {
+        this.nome = validarTextoObrigatorio(novoNome, "Nome é campo obrigatório!");
+    }
+
+    public void adicionarCurso(Curso curso) {
         Objects.requireNonNull(curso, "curso é obrigatória!");
 
-        boolean codigoJaUtilizado = cursos.stream()
-                                    .anyMatch(item -> item != curso
-                                    && item.getCodigoCurso() == curso.getCodigoCurso());
+        validarInclusao(curso);
+        curso.associaAo(this);
+        adicionarInternamente(curso);
+    }
 
-        if(codigoJaUtilizado){
+    void validarInclusao(Curso curso) {
+        boolean codigoJaUtilizado = cursos.stream()
+                .anyMatch(item -> item != curso
+                        && item.getCodigoCurso() == curso.getCodigoCurso());
+
+        if (codigoJaUtilizado) {
             throw new IllegalArgumentException("Codigo do curso ja utilizado!");
         }
+    }
 
-        curso.associaAo(this);
-
-        if(!cursos.contains(curso)){
+    void adicionarInternamente(Curso curso) {
+        if (!cursos.contains(curso)) {
             cursos.add(curso);
         }
     }
 
-    public void ativar(){
+    void removerInternamente(Curso curso) {
+        cursos.remove(curso);
+    }
+
+    public void ativar() {
         this.status = Status.ATIVO;
     }
 
@@ -58,7 +72,7 @@ public class CategoriaCurso {
         this.status = Status.INATIVO;
     }
 
-    public Long getId(){
+    public Long getId() {
         return id;
     }
 
@@ -70,15 +84,14 @@ public class CategoriaCurso {
         return status;
     }
 
-    public List<Curso> getCursos(){
+    public List<Curso> getCursos() {
         return List.copyOf(cursos);
     }
 
-    private static String validarTextoObrigatorio(String texto, String mensagem){
-        if(texto == null || texto.isBlank()){
+    private static String validarTextoObrigatorio(String texto, String mensagem) {
+        if (texto == null || texto.isBlank()) {
             throw new IllegalArgumentException(mensagem);
         }
         return texto;
     }
-
 }

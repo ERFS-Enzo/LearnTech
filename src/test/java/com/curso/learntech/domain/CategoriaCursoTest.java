@@ -72,6 +72,56 @@ class CategoriaCursoTest {
                 () -> categoria.getCursos().add(novoCurso(2)));
     }
 
+    @Test
+    void deveAlterarONomeDaCategoria() {
+        CategoriaCurso categoria = new CategoriaCurso("Programação");
+
+        categoria.alterarNome("Desenvolvimento");
+
+        assertEquals("Desenvolvimento", categoria.getNome());
+    }
+
+    @Test
+    void naoDeveAlterarONomeParaBranco() {
+        CategoriaCurso categoria = new CategoriaCurso("Programação");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> categoria.alterarNome("   "));
+        assertEquals("Programação", categoria.getNome());
+    }
+
+    @Test
+    void deveTrocarDeCategoriaMantendoOsDoisLadosDaAssociacao() {
+        CategoriaCurso origem = new CategoriaCurso("Programação");
+        CategoriaCurso destino = new CategoriaCurso("Desenvolvimento Web");
+        Curso curso = novoCurso(1);
+        origem.adicionarCurso(curso);
+
+        curso.alterarCategoria(destino);
+
+        assertSame(destino, curso.getCategoria());
+        assertEquals(0, origem.getCursos().size());
+        assertEquals(1, destino.getCursos().size());
+        assertSame(curso, destino.getCursos().get(0));
+    }
+
+    @Test
+    void naoDeveTrocarParaCategoriaQueJaPossuiOMesmoCodigo() {
+        CategoriaCurso origem = new CategoriaCurso("Programação");
+        CategoriaCurso destino = new CategoriaCurso("Desenvolvimento Web");
+        Curso emOrigem = novoCurso(1);
+        origem.adicionarCurso(emOrigem);
+        destino.adicionarCurso(novoCurso(1));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> emOrigem.alterarCategoria(destino));
+
+        assertSame(origem, emOrigem.getCategoria());
+        assertEquals(1, origem.getCursos().size());
+    }
+
     private Curso novoCurso(int codigoCurso) {
         return new Curso(
                 codigoCurso,

@@ -1,5 +1,9 @@
 package com.curso.learntech.domain;
 
+import com.curso.learntech.repository.CategoriaCursoRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -18,6 +22,19 @@ class PersistenciaJpaTest {
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private CategoriaCursoRepository categoriaRepository;
+
+    @Test
+    @Transactional
+    void bancoDeveImpedirNomeDeCategoriaDuplicadoIgnorandoMaiusculas() {
+        categoriaRepository.saveAndFlush(new CategoriaCurso("Papelaria"));
+
+        assertThrows(
+                DataIntegrityViolationException.class,
+                () -> categoriaRepository.saveAndFlush(new CategoriaCurso("PAPELARIA")));
+    }
 
     @Test
     @Transactional

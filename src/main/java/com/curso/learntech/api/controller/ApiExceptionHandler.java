@@ -1,5 +1,6 @@
 package com.curso.learntech.api.controller;
 
+import com.curso.learntech.repository.RecursoEmUsoException;
 import com.curso.learntech.api.dto.ApiError;
 import com.curso.learntech.repository.RecursoDuplicadoException;
 import com.curso.learntech.repository.RecursoNaoEncontradoException;
@@ -69,6 +70,13 @@ public class ApiExceptionHandler {
             Exception ex, HttpServletRequest request) {
         return resposta(HttpStatus.CONFLICT, "Conflict",
                 "Operação conflita com dados já existentes", request, null);
+    }
+
+    // 409 -> recurso em uso (ex: categoria que ainda possui cursos)
+    @ExceptionHandler(RecursoEmUsoException.class)
+    public ResponseEntity<ApiError> handleRecursoEmUso(
+            RecursoEmUsoException ex, HttpServletRequest request) {
+        return resposta(HttpStatus.CONFLICT, "Conflict", ex.getMessage(), request, null);
     }
 
     private ResponseEntity<ApiError> resposta(

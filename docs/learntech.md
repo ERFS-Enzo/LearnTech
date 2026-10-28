@@ -47,3 +47,12 @@
 | `dataCadastro` | `dataCadastro`          | data relevante |
 | `Status` | `Status`                | estados válidos |
 | `calcularValorEstoque` | `calcularValorPorHora` | cálculo que combina carga horária e valor do curso |
+
+## Justificativa dos métodos e códigos HTTP (Aula 08)
+
+- **PUT** substitui a representação editável do recurso e é idempotente: enviar o mesmo corpo duas vezes deixa o curso no mesmo estado. Por isso é usado para alterar categoria, curso e status.
+- **POST** nas rotas de carga horária (`/acrescimos` e `/reducoes`) registra um evento. Repetir a requisição soma de novo, então a operação não é idempotente.
+- **DELETE** remove fisicamente o registro e devolve `204` sem corpo. Uma categoria com cursos não pode ser excluída, apenas inativada.
+- **400 Bad Request**: dados inválidos ou regra de domínio violada (campo em branco, status inexistente, redução maior que a carga horária, ordenação por campo não permitido).
+- **404 Not Found**: o recurso do ID informado não existe.
+- **409 Conflict**: a operação conflita com o estado atual (nome de categoria já cadastrado, categoria que ainda possui cursos).

@@ -117,6 +117,42 @@ public class Curso {
         this.status = Status.INATIVO;
     }
 
+    public void alterarQuantidadeModulos(int novaQuantidade) {
+        this.quantidadeModulos = validarQuantidadeModulos(novaQuantidade);
+    }
+
+    public void alterarAutor(Autor autor) {
+        this.autor = autor; // autor é opcional: aceita null
+    }
+
+    public void alterarCategoria(CategoriaCurso novaCategoria) {
+        Objects.requireNonNull(novaCategoria, "Categoria do curso é obrigatória");
+
+        if (this.categoria == novaCategoria) {
+            return;
+        }
+
+        novaCategoria.validarInclusao(this);
+        if (this.categoria != null) {
+            this.categoria.removerInternamente(this);
+        }
+        this.categoria = novaCategoria;
+        novaCategoria.adicionarInternamente(this);
+    }
+
+    public void acrescentarCargaHoraria(BigDecimal quantidade) {
+        validarPositivo(quantidade, "Quantidade deve ser maior que zero");
+        this.cargaHoraria = this.cargaHoraria.add(quantidade);
+    }
+
+    public void reduzirCargaHoraria(BigDecimal quantidade) {
+        validarPositivo(quantidade, "Quantidade deve ser maior que zero");
+        if (quantidade.compareTo(this.cargaHoraria) >= 0) {
+            throw new IllegalArgumentException("Carga horária insuficiente");
+        }
+        this.cargaHoraria = this.cargaHoraria.subtract(quantidade);
+    }
+
     void associaAo(CategoriaCurso categoria) {
         Objects.requireNonNull(categoria, "Categoria do curso é  obrigatória");
 

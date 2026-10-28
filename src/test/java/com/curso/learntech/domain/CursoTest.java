@@ -1,5 +1,7 @@
 package com.curso.learntech.domain;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -111,6 +113,92 @@ class CursoTest {
         assertEquals(
                 0,
                 new BigDecimal("3.75").compareTo(valorPorHora));
+    }
+
+    @Test
+    void naoDeveCriarCursoComCargaHorariaZero() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> novoCurso("0", "149.90"));
+    }
+
+    @Test
+    void deveAlterarQuantidadeDeModulos() {
+        Curso curso = novoCurso("40", "149.90");
+
+        curso.alterarQuantidadeModulos(12);
+
+        assertEquals(12, curso.getQuantidadeModulos());
+    }
+
+    @Test
+    void naoDeveAlterarQuantidadeDeModulosParaValorNegativo() {
+        Curso curso = novoCurso("40", "149.90");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> curso.alterarQuantidadeModulos(-1));
+        assertEquals(9, curso.getQuantidadeModulos());
+    }
+
+    @Test
+    void deveAtribuirERemoverAutor() {
+        Curso curso = novoCurso("40", "149.90");
+        Autor autor = new Autor("Autor Teste", "11111111111");
+
+        curso.alterarAutor(autor);
+        assertSame(autor, curso.getAutor());
+
+        curso.alterarAutor(null);
+        assertNull(curso.getAutor());
+    }
+
+    @Test
+    void deveAcrescentarCargaHoraria() {
+        Curso curso = novoCurso("40", "149.90");
+
+        curso.acrescentarCargaHoraria(new BigDecimal("10.5"));
+
+        assertEquals(
+                0,
+                new BigDecimal("50.5").compareTo(curso.getCargaHoraria()));
+    }
+
+    @Test
+    void deveReduzirCargaHoraria() {
+        Curso curso = novoCurso("40", "149.90");
+
+        curso.reduzirCargaHoraria(new BigDecimal("15"));
+
+        assertEquals(
+                0,
+                new BigDecimal("25").compareTo(curso.getCargaHoraria()));
+    }
+
+    @Test
+    void naoDeveReduzirCargaHorariaAteZerarOuNegativar() {
+        Curso curso = novoCurso("40", "149.90");
+
+        IllegalArgumentException excecao = assertThrows(
+                IllegalArgumentException.class,
+                () -> curso.reduzirCargaHoraria(new BigDecimal("40")));
+
+        assertEquals("Carga horária insuficiente", excecao.getMessage());
+        assertEquals(
+                0,
+                new BigDecimal("40").compareTo(curso.getCargaHoraria()));
+    }
+
+    @Test
+    void naoDeveMovimentarCargaHorariaComQuantidadeNaoPositiva() {
+        Curso curso = novoCurso("40", "149.90");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> curso.acrescentarCargaHoraria(BigDecimal.ZERO));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> curso.reduzirCargaHoraria(new BigDecimal("-1")));
     }
 
     private Curso novoCurso(String cargaHoraria, String preco) {

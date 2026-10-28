@@ -56,3 +56,37 @@
 - **400 Bad Request**: dados inválidos ou regra de domínio violada (campo em branco, status inexistente, redução maior que a carga horária, ordenação por campo não permitido).
 - **404 Not Found**: o recurso do ID informado não existe.
 - **409 Conflict**: a operação conflita com o estado atual (nome de categoria já cadastrado, categoria que ainda possui cursos).
+
+# Contrato OpenAPI
+
+Contrato disponível em desenvolvimento e teste: `/v3/api-docs`, `/v3/api-docs.yaml` e `/swagger-ui.html`.
+
+| Operação | Sucesso | Erros documentados | Evidência |
+|---|---|---|---|
+| Cadastrar categoria | 201 | 400, 409 | Swagger UI e `CursoOperacoesApiTest` |
+| Consultar categoria | 200 | 404 | Swagger UI |
+| Pesquisar categorias | 200 | 400 | Swagger UI |
+| Alterar categoria | 200 | 400, 404, 409 | `CursoOperacoesApiTest` |
+| Alterar status da categoria | 200 | 400, 404 | Swagger UI |
+| Excluir categoria | 204 | 404, 409 | `CursoOperacoesApiTest` |
+| Cadastrar autor | 201 | 400, 409 | Swagger UI |
+| Consultar / listar autores | 200 | 404 (só por ID) | Swagger UI |
+| Cadastrar curso | 201 | 400, 404, 409 | `CursoApiTest` |
+| Consultar curso | 200 | 404 | `OpenApiDocumentationTest` |
+| Pesquisar cursos | 200 | 400 | `CursoOperacoesApiTest` |
+| Alterar curso | 200 | 400, 404 | `CursoOperacoesApiTest` |
+| Alterar status do curso | 200 | 400, 404 | `CursoOperacoesApiTest` |
+| Acrescentar / reduzir carga horária | 200 | 400, 404 | `CursoOperacoesApiTest` |
+| Excluir curso | 204 | 404 | `CursoOperacoesApiTest` |
+
+## Divergência encontrada e corrigida
+(Escreva aqui uma divergência que VOCÊ viu no Swagger UI e como corrigiu.)
+
+## Limite da geração automática
+O springdoc descreve o que o código declara, mas não sabe a regra de negócio. Por exemplo, a redução de
+carga horária só falha com 400 por uma regra do domínio; se o `@ApiResponse` não for escrito, o 400
+simplesmente não aparece no contrato. A documentação precisa ser revisada por uma pessoa.
+
+## Produção
+A documentação fica **desabilitada** no profile `prod` por decisão explícita: ainda não há autenticação
+nem política de publicação do contrato.

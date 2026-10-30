@@ -41,9 +41,12 @@ public class Autor {
         return texto;
     }
 
-    private String validarCpf(String cpf){
-        if(cpf == null || cpf.isBlank()){
+    private String validarCpf(String cpf) {
+        if (cpf == null || cpf.isBlank()) {
             throw new IllegalArgumentException("Cpf é obrigatório");
+        }
+        if (!DocumentoFiscal.cpfValido(cpf)) {
+            throw new IllegalArgumentException("Cpf inválido");
         }
 
         return cpf;

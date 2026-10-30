@@ -144,7 +144,7 @@ class CursoTest {
     @Test
     void deveAtribuirERemoverAutor() {
         Curso curso = novoCurso("40", "149.90");
-        Autor autor = new Autor("Autor Teste", "11111111111");
+        Autor autor = new Autor("Autor Teste", "52998224725");
 
         curso.alterarAutor(autor);
         assertSame(autor, curso.getAutor());

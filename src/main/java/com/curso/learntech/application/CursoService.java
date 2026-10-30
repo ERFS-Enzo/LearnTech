@@ -128,6 +128,13 @@ public class CursoService {
     }
 
     @Transactional
+    public Curso definirVagas(Long id, int vagas) {
+        Curso curso = buscarEntidade(id);
+        curso.definirVagas(vagas);
+        return curso;
+    }
+
+    @Transactional
     public void excluir(Long id) {
         Curso curso = buscarEntidade(id);
         cursoRepository.delete(curso);

@@ -1,12 +1,6 @@
 package com.curso.learntech.api.controller;
 
-import com.curso.learntech.api.dto.ApiError;
-import com.curso.learntech.api.dto.CursoAtualizacaoRequest;
-import com.curso.learntech.api.dto.CursoRequest;
-import com.curso.learntech.api.dto.CursoResponse;
-import com.curso.learntech.api.dto.MovimentacaoCargaHorariaRequest;
-import com.curso.learntech.api.dto.PaginaResponse;
-import com.curso.learntech.api.dto.StatusRequest;
+import com.curso.learntech.api.dto.*;
 import com.curso.learntech.api.mapper.CursoMapper;
 import com.curso.learntech.application.CursoService;
 import com.curso.learntech.domain.Curso;
@@ -150,6 +144,16 @@ public class CursoController {
             @PathVariable Long id,
             @Valid @RequestBody StatusRequest request) {
         return mapper.toResponse(service.alterarStatus(id, request.status()));
+    }
+
+    @Operation(summary = "Definir vagas do curso",
+            description = "Substitui a quantidade de vagas disponíveis. As vagas são baixadas "
+                    + "quando uma inscrição é finalizada.")
+    @PutMapping("/{id}/vagas")
+    public CursoResponse definirVagas(
+            @PathVariable Long id,
+            @Valid @RequestBody VagasRequest request) {
+        return mapper.toResponse(service.definirVagas(id, request.vagas()));
     }
 
     @Operation(summary = "Acrescentar carga horária",

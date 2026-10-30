@@ -64,10 +64,17 @@ public class ApiExceptionHandler {
         return resposta(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage(), request, null);
     }
 
-    // 409 -> estado inválido ou violação de unicidade no banco
-    @ExceptionHandler({IllegalStateException.class, DataIntegrityViolationException.class})
-    public ResponseEntity<ApiError> handleConflitoDeDados(
-            Exception ex, HttpServletRequest request) {
+    // 409 -> transição de estado inválida (ex: finalizar inscrição já finalizada)
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiError> handleEstadoInvalido(
+            IllegalStateException ex, HttpServletRequest request) {
+        return resposta(HttpStatus.CONFLICT, "Conflict", ex.getMessage(), request, null);
+    }
+
+    // 409 -> violação de unicidade ou de chave estrangeira no banco
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleIntegridade(
+            DataIntegrityViolationException ex, HttpServletRequest request) {
         return resposta(HttpStatus.CONFLICT, "Conflict",
                 "Operação conflita com dados já existentes", request, null);
     }

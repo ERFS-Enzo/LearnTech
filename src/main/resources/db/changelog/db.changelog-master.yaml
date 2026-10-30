@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/changes/005-drop-plataforma-curso.yaml
   - include:
       file: db/changelog/changes/006-unique-nome-categoria-curso.yaml
+  - include:
+      file: db/changelog/changes/007-pessoas-alunos-inscricoes.yaml

@@ -90,3 +90,39 @@ simplesmente não aparece no contrato. A documentação precisa ser revisada por
 ## Produção
 A documentação fica **desabilitada** no profile `prod` por decisão explícita: ainda não há autenticação
 nem política de publicação do contrato.
+
+# Identidade, papéis e inscrições
+
+```mermaid
+erDiagram
+    PESSOA ||--o| ALUNO : "pode ser"
+    PESSOA ||--o| COLABORADOR : "pode ser"
+    ALUNO ||--o{ INSCRICAO : realiza
+    COLABORADOR ||--o{ INSCRICAO : atende
+    INSCRICAO ||--o{ ITEM_INSCRICAO : contem
+    CURSO ||--o{ ITEM_INSCRICAO : "aparece em"
+```
+
+## Por que composição e não herança
+Uma mesma pessoa pode ser aluna e colaboradora ao mesmo tempo. Com herança (`Aluno extends Pessoa`),
+seriam dois registros para a mesma pessoa, com CPF e e-mail duplicados, ou exigiria trocar de classe.
+Com composição, a identidade (nome, e-mail, CPF) existe uma única vez em `Pessoa`, e cada papel guarda só
+o que é próprio dele (telefone do aluno; matrícula e função do colaborador).
+
+## Documento
+O CPF é validado pelos dígitos verificadores, na API (`@CpfValido`) e no domínio (`DocumentoFiscal`),
+e protegido no banco por restrição de formato e unicidade. O domínio não usa CNPJ, então não foi criado.
+
+## Entidade associativa
+`ItemInscricao` liga inscrição e curso e guarda o `valorPraticado`: o preço do curso copiado no momento
+da inclusão. Se o preço do curso mudar depois, o total da inscrição não muda.
+
+## Transação com dois efeitos
+`POST /api/inscricoes/{id}/finalizacao` finaliza a inscrição e baixa uma vaga de cada curso. Se qualquer
+curso estiver inativo ou sem vagas, nada é gravado (demonstrado em `InscricaoServiceTest`).
+Limite: sem controle de concorrência, duas finalizações simultâneas do último lugar podem ambas passar;
+um lock otimista (`@Version`) seria o próximo passo.
+
+## Códigos HTTP
+400: regra de domínio violada (CPF inválido, curso sem vagas, inscrição vazia).
+404: recurso inexistente. 409: conflito com o estado atual (inscrição não está aberta, CPF duplicado).

@@ -38,7 +38,7 @@ class CursoApiTest {
     void deveCadastrarCursoERetornar201() throws Exception {
         CategoriaCurso categoria = categoriaRepository.save(new CategoriaCurso("Categoria API"));
         Autor autor = autorRepository.save(new Autor(
-                "Autor API", "11111111111"));
+                "Autor API", "52998224725"));
 
         String json = """
                 {

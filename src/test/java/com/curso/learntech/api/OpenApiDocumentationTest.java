@@ -40,4 +40,20 @@ class OpenApiDocumentationTest {
                 .andExpect(jsonPath("$.components.schemas.CursoResponse").exists())
                 .andExpect(jsonPath("$.components.schemas.ApiError").exists());
     }
+
+    @Test
+    void devePublicarRotasDeIdentidadePapeisEInscricoes() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paths['/api/pessoas'].post").exists())
+                .andExpect(jsonPath("$.paths['/api/alunos'].post").exists())
+                .andExpect(jsonPath("$.paths['/api/colaboradores'].post").exists())
+                .andExpect(jsonPath("$.paths['/api/cursos/{id}/vagas'].put").exists())
+                .andExpect(jsonPath("$.paths['/api/inscricoes'].post").exists())
+                .andExpect(jsonPath("$.paths['/api/inscricoes/{id}/finalizacao'].post")
+                        .exists())
+                .andExpect(jsonPath("$.components.schemas.InscricaoResponse").exists())
+                .andExpect(jsonPath("$.components.schemas.PessoaResponse").exists());
+    }
+
 }

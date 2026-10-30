@@ -38,7 +38,7 @@ class CursoServiceTest {
                 new CategoriaCurso("backend"));
 
         Autor autor = autorRepository.save(
-                new Autor("Balta", "00000000000"));
+                new Autor("Balta", "52998224725"));
 
         Curso cadastrado = cursoService.cadastrar(
                 novoCurso(999),

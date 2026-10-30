@@ -51,6 +51,9 @@ public class Curso {
     @Column(name = "quantidade_modulos", nullable = false)
     private int quantidadeModulos;
 
+    @Column(name = "vagas_disponiveis", nullable = false)
+    private int vagasDisponiveis;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "autor_id",
@@ -153,6 +156,21 @@ public class Curso {
         this.cargaHoraria = this.cargaHoraria.subtract(quantidade);
     }
 
+    public void definirVagas(int vagas) {
+        if (vagas < 0) {
+            throw new IllegalArgumentException("Vagas não podem ser negativas");
+        }
+        this.vagasDisponiveis = vagas;
+    }
+
+    public void ocuparVaga() {
+        if (vagasDisponiveis <= 0) {
+            throw new IllegalArgumentException(
+                    "Curso sem vagas disponíveis: " + descricao);
+        }
+        this.vagasDisponiveis--;
+    }
+
     void associaAo(CategoriaCurso categoria) {
         Objects.requireNonNull(categoria, "Categoria do curso é  obrigatória");
 
@@ -202,6 +220,10 @@ public class Curso {
 
     public int getQuantidadeModulos() {
         return quantidadeModulos;
+    }
+
+    public int getVagasDisponiveis() {
+        return vagasDisponiveis;
     }
 
     private static String validarTextoObrigatorio(String texto, String mensagem) {

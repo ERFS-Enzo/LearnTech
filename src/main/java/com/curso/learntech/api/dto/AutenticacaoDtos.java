@@ -16,6 +16,13 @@ public final class AutenticacaoDtos {
     public record TokenResponse(
             String accessToken,
             String tokenType,
-            long expiresIn) {
+            long expiresIn,
+            String refreshToken) {
+    }
+
+    public record RefreshRequest(
+            @NotBlank
+            @Size(max = 200)
+            String refreshToken) {
     }
 }

@@ -123,6 +123,69 @@ class AutenticacaoApiTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void deveRotacionarERevogarFamiliaAoReutilizarToken()
+            throws Exception {
+
+        String primeiroRefresh =
+                loginValido().get("refreshToken").asText();
+
+        String corpo = mockMvc.perform(
+                        post("/api/autenticacao/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(corpoRefresh(primeiroRefresh)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String segundoRefresh = objectMapper.readTree(corpo)
+                .get("refreshToken")
+                .asText();
+
+        assertNotEquals(primeiroRefresh, segundoRefresh);
+
+        mockMvc.perform(post("/api/autenticacao/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpoRefresh(primeiroRefresh)))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(post("/api/autenticacao/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpoRefresh(segundoRefresh)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void logoutDeveImpedirRenovacaoMasManterAccessTokenAteExpirar()
+            throws Exception {
+
+        JsonNode tokens = loginValido();
+
+        String refresh = tokens.get("refreshToken").asText();
+        String access = tokens.get("accessToken").asText();
+
+        mockMvc.perform(post("/api/autenticacao/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpoRefresh(refresh)))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(post("/api/autenticacao/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpoRefresh(refresh)))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(get("/api/cursos")
+                        .header("Authorization", "Bearer " + access))
+                .andExpect(status().isOk());
+    }
+
+    private String corpoRefresh(String token) {
+        return """
+            {"refreshToken":"%s"}
+            """.formatted(token);
+    }
+
     private JsonNode loginValido() throws Exception {
         String corpo = mockMvc.perform(
                         post("/api/autenticacao/login")

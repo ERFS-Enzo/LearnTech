@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
 public class AutenticacaoService {
 
     private final AuthenticationManager authenticationManager;
-    private final TokenService tokenService;
+    private final SessaoAutenticacaoService sessaoService;
 
     public AutenticacaoService(
             AuthenticationManager authenticationManager,
-            TokenService tokenService) {
+            SessaoAutenticacaoService sessaoService) {
 
         this.authenticationManager = authenticationManager;
-        this.tokenService = tokenService;
+        this.sessaoService = sessaoService;
     }
 
     public TokenResponse autenticar(String login, String senha) {
@@ -28,12 +28,7 @@ public class AutenticacaoService {
                             ContaAcesso.normalizarLogin(login),
                             senha));
 
-            var token = tokenService.emitir(authentication, null);
-
-            return new TokenResponse(
-                    token.valor(),
-                    "Bearer",
-                    token.expiresIn());
+            return sessaoService.iniciar(authentication);
 
         } catch (AuthenticationException exception) {
             throw new CredenciaisInvalidasException();

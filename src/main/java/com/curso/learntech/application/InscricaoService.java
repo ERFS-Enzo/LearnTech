@@ -1,5 +1,8 @@
 package com.curso.learntech.application;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import java.util.Comparator;
 import com.curso.learntech.domain.Aluno;
 import com.curso.learntech.domain.Colaborador;
 import com.curso.learntech.domain.Curso;
@@ -28,15 +31,20 @@ public class InscricaoService {
     private final AlunoRepository alunoRepository;
     private final ColaboradorRepository colaboradorRepository;
     private final CursoRepository cursoRepository;
+    private final EntityManager entityManager;
 
-    public InscricaoService(InscricaoRepository repository,
-                            AlunoRepository alunoRepository,
-                            ColaboradorRepository colaboradorRepository,
-                            CursoRepository cursoRepository) {
+    public InscricaoService(
+            InscricaoRepository repository,
+            AlunoRepository alunoRepository,
+            ColaboradorRepository colaboradorRepository,
+            CursoRepository cursoRepository,
+            EntityManager entityManager) {
+
         this.repository = repository;
         this.alunoRepository = alunoRepository;
         this.colaboradorRepository = colaboradorRepository;
         this.cursoRepository = cursoRepository;
+        this.entityManager = entityManager;
     }
 
     @Transactional
@@ -82,7 +90,7 @@ public class InscricaoService {
 
     @Transactional
     public Inscricao adicionarItem(Long inscricaoId, Long cursoId) {
-        Inscricao inscricao = buscarEntidade(inscricaoId);
+        Inscricao inscricao = buscarParaAlteracao(inscricaoId);
         Curso curso = cursoRepository.findById(cursoId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Curso não encontrado"));
 
@@ -96,7 +104,7 @@ public class InscricaoService {
 
     @Transactional
     public Inscricao removerItem(Long inscricaoId, Long itemId) {
-        Inscricao inscricao = buscarEntidade(inscricaoId);
+        Inscricao inscricao = buscarParaAlteracao(inscricaoId);
 
         if (!inscricao.possuiItem(itemId)) {
             throw new RecursoNaoEncontradoException("Item não encontrado na inscrição");
@@ -106,22 +114,35 @@ public class InscricaoService {
         return inscricao;
     }
 
-    // Dois efeitos coordenados na mesma transação:
-    // 1) a inscrição passa a FINALIZADA; 2) cada curso perde uma vaga.
-    // Se qualquer curso estiver inativo ou sem vagas, nada é gravado.
     @Transactional
     public Inscricao finalizar(Long id) {
-        Inscricao inscricao = buscarEntidade(id);
+        Inscricao inscricao = buscarParaAlteracao(id);
 
         inscricao.finalizar(LocalDateTime.now());
-        validarParticipantes(inscricao.getAluno(), inscricao.getAtendente());
 
-        for (ItemInscricao item : inscricao.getItens()) {
+        validarParticipantes(
+                inscricao.getAluno(),
+                inscricao.getAtendente());
+
+        var itensOrdenados = inscricao.getItens().stream()
+                .sorted(Comparator.comparing(
+                        item -> item.getCurso().getId()))
+                .toList();
+
+        for (ItemInscricao item : itensOrdenados) {
             Curso curso = item.getCurso();
+
+            // Atualiza a entidade com o saldo confirmado mais recente
+            // e mantém o bloqueio até o término da transação.
+            entityManager.refresh(
+                    curso,
+                    LockModeType.PESSIMISTIC_WRITE);
+
             if (curso.getStatus() != Status.ATIVO) {
                 throw new IllegalArgumentException(
                         "Todos os cursos da inscrição devem estar ativos");
             }
+
             curso.ocuparVaga();
         }
 
@@ -130,7 +151,7 @@ public class InscricaoService {
 
     @Transactional
     public Inscricao cancelar(Long id) {
-        Inscricao inscricao = buscarEntidade(id);
+        Inscricao inscricao = buscarParaAlteracao(id);
         inscricao.cancelar();
         return inscricao;
     }
@@ -161,4 +182,18 @@ public class InscricaoService {
             }
         });
     }
+
+    private Inscricao buscarParaAlteracao(Long id) {
+        Inscricao inscricao = entityManager.find(
+                Inscricao.class,
+                id,
+                LockModeType.PESSIMISTIC_WRITE);
+
+        if (inscricao == null) {
+            throw new RecursoNaoEncontradoException("Inscrição não encontrada");
+        }
+
+        return inscricao;
+    }
+
 }

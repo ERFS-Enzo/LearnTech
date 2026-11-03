@@ -1,5 +1,7 @@
 package com.curso.learntech.application;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import com.curso.learntech.domain.Autor;
 import com.curso.learntech.domain.CategoriaCurso;
 import com.curso.learntech.domain.Curso;
@@ -20,13 +22,18 @@ public class CursoService {
     private final CursoRepository cursoRepository;
     private final CategoriaCursoRepository categoriaRepository;
     private final AutorRepository autorRepository;
+    private final EntityManager entityManager;
 
-    public CursoService(CursoRepository cursoRepository,
-                        CategoriaCursoRepository categoriaRepository,
-                        AutorRepository autorRepository) {
+    public CursoService(
+            CursoRepository cursoRepository,
+            CategoriaCursoRepository categoriaRepository,
+            AutorRepository autorRepository,
+            EntityManager entityManager) {
+
         this.cursoRepository = cursoRepository;
         this.categoriaRepository = categoriaRepository;
         this.autorRepository = autorRepository;
+        this.entityManager = entityManager;
     }
 
     @Transactional
@@ -130,6 +137,11 @@ public class CursoService {
     @Transactional
     public Curso definirVagas(Long id, int vagas) {
         Curso curso = buscarEntidade(id);
+
+        entityManager.refresh(
+                curso,
+                LockModeType.PESSIMISTIC_WRITE);
+
         curso.definirVagas(vagas);
         return curso;
     }

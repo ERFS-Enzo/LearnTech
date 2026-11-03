@@ -1,5 +1,11 @@
 package com.curso.learntech.application;
 
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.curso.learntech.domain.Aluno;
 import com.curso.learntech.domain.CategoriaCurso;
 import com.curso.learntech.domain.Colaborador;
@@ -100,6 +106,101 @@ class InscricaoServiceTest {
 
         Inscricao relida = inscricaoRepository.findOneById(inscricaoId).orElseThrow();
         assertEquals(StatusInscricao.ABERTA, relida.getStatus());
+    }
+
+    @Test
+    void naoDeveFinalizarAMesmaInscricaoDuasVezesEmParalelo()
+            throws Exception {
+
+        prepararCenario(3, 5);
+
+        CountDownLatch largada = new CountDownLatch(1);
+
+        Callable<Boolean> tarefa = () -> {
+            if (!largada.await(10, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("Tempo de largada excedido");
+            }
+
+            try {
+                inscricaoService.finalizar(inscricaoId);
+                return true;
+            } catch (IllegalStateException exception) {
+                return false;
+            }
+        };
+
+        try (var executor = Executors.newFixedThreadPool(2)) {
+            var primeira = executor.submit(tarefa);
+            var segunda = executor.submit(tarefa);
+
+            largada.countDown();
+
+            boolean resultadoA = primeira.get(20, TimeUnit.SECONDS);
+            boolean resultadoB = segunda.get(20, TimeUnit.SECONDS);
+
+            assertTrue(resultadoA ^ resultadoB);
+        }
+
+        assertEquals(2, vagasDoCurso(0));
+        assertEquals(4, vagasDoCurso(1));
+    }
+
+    @Test
+    void apenasUmaInscricaoDeveConseguirAUltimaVaga()
+            throws Exception {
+
+        prepararCenario(1, 5);
+
+        Inscricao segundaInscricao =
+                inscricaoService.abrir(alunoId, atendenteId);
+
+        Long segundoId = segundaInscricao.getId();
+
+        try {
+            inscricaoService.adicionarItem(
+                    segundoId,
+                    cursoIds.get(0));
+
+            CountDownLatch largada = new CountDownLatch(1);
+
+            try (var executor = Executors.newFixedThreadPool(2)) {
+                var primeira = executor.submit(() ->
+                        tentarFinalizar(inscricaoId, largada));
+
+                var segunda = executor.submit(() ->
+                        tentarFinalizar(segundoId, largada));
+
+                largada.countDown();
+
+                boolean resultadoA =
+                        primeira.get(20, TimeUnit.SECONDS);
+
+                boolean resultadoB =
+                        segunda.get(20, TimeUnit.SECONDS);
+
+                assertTrue(resultadoA ^ resultadoB);
+            }
+
+            assertEquals(0, vagasDoCurso(0));
+        } finally {
+            inscricaoRepository.deleteById(segundoId);
+        }
+    }
+
+    private boolean tentarFinalizar(
+            Long id,
+            CountDownLatch largada) throws InterruptedException {
+
+        if (!largada.await(10, TimeUnit.SECONDS)) {
+            throw new IllegalStateException("Tempo de largada excedido");
+        }
+
+        try {
+            inscricaoService.finalizar(id);
+            return true;
+        } catch (IllegalArgumentException exception) {
+            return false;
+        }
     }
 
     private int vagasDoCurso(int posicao) {

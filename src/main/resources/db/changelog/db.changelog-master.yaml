@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/changes/008-contas-acesso.yaml
   - include:
       file: db/changelog/changes/009-refresh-tokens.yaml
+  - include:
+      file: db/changelog/changes/010-auditoria-protecao.yaml

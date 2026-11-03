@@ -77,6 +77,8 @@ public class SecurityConfig {
                         .hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/**")
                         .hasRole("ADMINISTRADOR")
+                        .requestMatchers("/api/auditoria-seguranca/**")
+                        .hasRole("ADMINISTRADOR")
                         .requestMatchers("/api/**")
                         .hasAnyRole("OPERADOR", "ADMINISTRADOR")
                         .anyRequest().denyAll())

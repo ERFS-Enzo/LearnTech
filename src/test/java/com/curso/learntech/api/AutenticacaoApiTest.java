@@ -1,5 +1,6 @@
 package com.curso.learntech.api;
 
+import org.springframework.security.test.context.support.WithMockUser;
 import com.curso.learntech.domain.*;
 import com.curso.learntech.repository.ContaAcessoRepository;
 import com.curso.learntech.repository.PessoaRepository;
@@ -178,6 +179,66 @@ class AutenticacaoApiTest {
         mockMvc.perform(get("/api/cursos")
                         .header("Authorization", "Bearer " + access))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void deveBloquearLoginAposCincoFalhas() throws Exception {
+        for (int tentativa = 0; tentativa < 5; tentativa++) {
+            mockMvc.perform(post("/api/autenticacao/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                {
+                                  "login": "%s",
+                                  "senha": "SenhaErrada123!"
+                                }
+                                """.formatted(login)))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.message")
+                            .value("Credenciais inválidas"));
+        }
+
+        // Mesmo a senha correta deve ser recusada durante o bloqueio.
+        mockMvc.perform(post("/api/autenticacao/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "login": "%s",
+                              "senha": "SenhaTeste123!"
+                            }
+                            """.formatted(login)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message")
+                        .value("Credenciais inválidas"));
+    }
+
+    @Test
+    @WithMockUser(roles = "OPERADOR")
+    void operadorNaoPodeConsultarAuditoria() throws Exception {
+        mockMvc.perform(get("/api/auditoria-seguranca"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMINISTRADOR")
+    void administradorPodeConsultarAuditoriaSemReceberSegredos()
+            throws Exception {
+
+        loginValido();
+
+        mockMvc.perform(get("/api/auditoria-seguranca")
+                        .param("tipo", "LOGIN_SUCESSO")
+                        .param("alvoId", contaId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.conteudo[0].tipo")
+                        .value("LOGIN_SUCESSO"))
+                .andExpect(jsonPath("$.conteudo[0].senha")
+                        .doesNotExist())
+                .andExpect(jsonPath("$.conteudo[0].senhaHash")
+                        .doesNotExist())
+                .andExpect(jsonPath("$.conteudo[0].accessToken")
+                        .doesNotExist())
+                .andExpect(jsonPath("$.conteudo[0].refreshToken")
+                        .doesNotExist());
     }
 
     private String corpoRefresh(String token) {

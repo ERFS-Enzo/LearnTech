@@ -25,15 +25,18 @@ public class ContaAcessoService {
     private final ContaAcessoRepository repository;
     private final PessoaRepository pessoaRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditoriaService auditoria;
 
     public ContaAcessoService(
             ContaAcessoRepository repository,
             PessoaRepository pessoaRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            AuditoriaService auditoria) {
 
         this.repository = repository;
         this.pessoaRepository = pessoaRepository;
         this.passwordEncoder = passwordEncoder;
+        this.auditoria = auditoria;
     }
 
     @Transactional
@@ -44,11 +47,17 @@ public class ContaAcessoService {
                         new RecursoNaoEncontradoException(
                                 "Pessoa não encontrada"));
 
-        return resposta(cadastrar(
+        ContaAcesso conta = cadastrar(
                 pessoa,
                 request.login(),
                 request.senha(),
-                request.perfis()));
+                request.perfis());
+
+        auditoria.registrarAdministrativo(
+                "CONTA_CRIADA",
+                conta.getId());
+
+        return resposta(conta);
     }
 
     @Transactional(readOnly = true)
@@ -69,6 +78,10 @@ public class ContaAcessoService {
             throw new CredenciaisInvalidasException();
         }
 
+        auditoria.registrarAdministrativo(
+                "SENHA_ALTERADA",
+                conta.getId());
+
         validarSenha(novaSenha);
         conta.alterarSenhaHash(passwordEncoder.encode(novaSenha));
     }
@@ -81,6 +94,11 @@ public class ContaAcessoService {
 
         ContaAcesso conta = buscarParaAtualizacao(id);
         conta.alterarPerfis(perfis);
+
+        auditoria.registrarAdministrativo(
+                "PERFIS_ALTERADOS",
+                conta.getId());
+
         return resposta(conta);
     }
 
@@ -89,6 +107,11 @@ public class ContaAcessoService {
     public ContaResponse alterarStatus(Long id, boolean ativa) {
         ContaAcesso conta = buscarParaAtualizacao(id);
         conta.alterarStatus(ativa);
+
+        auditoria.registrarAdministrativo(
+                ativa ? "CONTA_ATIVADA" : "CONTA_DESATIVADA",
+                conta.getId());
+
         return resposta(conta);
     }
 

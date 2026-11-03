@@ -1,5 +1,6 @@
 package com.curso.learntech.api.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import com.curso.learntech.api.dto.AutenticacaoDtos.*;
 import com.curso.learntech.application.AutenticacaoService;
 import com.curso.learntech.application.SessaoAutenticacaoService;
@@ -28,11 +29,13 @@ public class AutenticacaoController {
     @SecurityRequirements
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(
-            @Valid @RequestBody LoginRequest request) {
+            @Valid @RequestBody LoginRequest request,
+            HttpServletRequest servletRequest) {
 
         return tokens(service.autenticar(
                 request.login(),
-                request.senha()));
+                request.senha(),
+                servletRequest.getRemoteAddr()));
     }
 
     @SecurityRequirements

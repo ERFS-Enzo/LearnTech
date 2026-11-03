@@ -33,6 +33,7 @@ public class SessaoAutenticacaoService {
     private final Duration idleTimeout;
     private final Duration absoluteTimeout;
     private final SecureRandom random = new SecureRandom();
+    private final AuditoriaService auditoria;
 
     public SessaoAutenticacaoService(
             ContaAcessoRepository contaRepository,
@@ -40,7 +41,8 @@ public class SessaoAutenticacaoService {
             TokenService tokenService,
             Clock clock,
             @Value("${app.security.refresh.idle-timeout}") Duration idleTimeout,
-            @Value("${app.security.refresh.absolute-timeout}") Duration absoluteTimeout) {
+            @Value("${app.security.refresh.absolute-timeout}") Duration absoluteTimeout,
+            AuditoriaService auditoria) {
 
         if (idleTimeout.isZero() || idleTimeout.isNegative()
                 || absoluteTimeout.isZero()
@@ -56,6 +58,7 @@ public class SessaoAutenticacaoService {
         this.clock = clock;
         this.idleTimeout = idleTimeout;
         this.absoluteTimeout = absoluteTimeout;
+        this.auditoria = auditoria;
     }
 
     @Transactional
@@ -97,11 +100,25 @@ public class SessaoAutenticacaoService {
 
             repository.revogarFamilia(sessao.getFamilia());
 
+            auditoria.registrar(
+                    "REFRESH_RECUSADO_FAMILIA_REVOGADA",
+                    null,
+                    contaId,
+                    null,
+                    null);
+
             // A revogação precisa ser confirmada mesmo retornando 401.
             throw new CredenciaisInvalidasException();
         }
 
         sessao.marcarUsada();
+
+        auditoria.registrar(
+                "REFRESH_REALIZADO",
+                contaId,
+                contaId,
+                null,
+                null);
 
         return emitir(
                 conta,
@@ -125,6 +142,13 @@ public class SessaoAutenticacaoService {
                 .ifPresent(sessao ->
                         repository.revogarFamilia(
                                 sessao.getFamilia()));
+
+        auditoria.registrar(
+                "LOGOUT",
+                contaId.get(),
+                contaId.get(),
+                null,
+                null);
     }
 
     @Transactional
@@ -135,6 +159,14 @@ public class SessaoAutenticacaoService {
 
         bloquearConta(id);
         repository.revogarTodas(id);
+
+        auditoria.registrar(
+                "LOGOUT_GLOBAL",
+                id,
+                id,
+                null,
+                null);
+
     }
 
     private TokenResponse emitir(

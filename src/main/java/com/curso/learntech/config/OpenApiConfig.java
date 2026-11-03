@@ -1,5 +1,8 @@
 package com.curso.learntech.config;
 
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -13,6 +16,15 @@ public class OpenApiConfig {
     @Bean
     OpenAPI learnTechOpenAPI() {
         return new OpenAPI()
+                .components(new Components()
+                        .addSecuritySchemes(
+                                "bearerAuth",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")))
+                .addSecurityItem(
+                        new SecurityRequirement().addList("bearerAuth"))
                 .info(new Info()
                         .title("LearnTech API")
                         .description("API didática para cadastro de cursos, categorias "

@@ -1,5 +1,6 @@
 package com.curso.learntech.application;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.curso.learntech.api.dto.SegurancaDtos.ContaResponse;
 import com.curso.learntech.api.dto.SegurancaDtos.CriarConta;
 import com.curso.learntech.domain.ContaAcesso;
@@ -36,6 +37,7 @@ public class ContaAcessoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ContaResponse criar(CriarConta request) {
         Pessoa pessoa = pessoaRepository.findById(request.pessoaId())
                 .orElseThrow(() ->
@@ -72,6 +74,7 @@ public class ContaAcessoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ContaResponse alterarPerfis(
             Long id,
             Set<PerfilAcesso> perfis) {
@@ -82,6 +85,7 @@ public class ContaAcessoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ContaResponse alterarStatus(Long id, boolean ativa) {
         ContaAcesso conta = buscarParaAtualizacao(id);
         conta.alterarStatus(ativa);

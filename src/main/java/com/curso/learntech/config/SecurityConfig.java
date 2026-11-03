@@ -1,5 +1,6 @@
 package com.curso.learntech.config;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -63,7 +65,18 @@ public class SecurityConfig {
                                 HttpMethod.POST,
                                 "/api/autenticacao/login")
                         .permitAll()
-                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/contas-acesso")
+                        .hasRole("ADMINISTRADOR")
+                        .requestMatchers(
+                                "/api/contas-acesso/*/perfis",
+                                "/api/contas-acesso/*/status")
+                        .hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/pessoas/*/status")
+                        .hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/**")
+                        .hasRole("ADMINISTRADOR")
+                        .requestMatchers("/api/**")
+                        .hasAnyRole("OPERADOR", "ADMINISTRADOR")
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt ->
                         jwt.jwtAuthenticationConverter(converter)))

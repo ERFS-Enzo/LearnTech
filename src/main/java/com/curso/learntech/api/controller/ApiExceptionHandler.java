@@ -1,5 +1,6 @@
 package com.curso.learntech.api.controller;
 
+import org.springframework.security.access.AccessDeniedException;
 import com.curso.learntech.application.CredenciaisInvalidasException;
 import com.curso.learntech.repository.RecursoEmUsoException;
 import com.curso.learntech.api.dto.ApiError;
@@ -95,6 +96,19 @@ public class ApiExceptionHandler {
                 HttpStatus.UNAUTHORIZED,
                 "Unauthorized",
                 "Credenciais inválidas",
+                request,
+                null);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAcessoNegado(
+            AccessDeniedException exception,
+            HttpServletRequest request) {
+
+        return resposta(
+                HttpStatus.FORBIDDEN,
+                "Forbidden",
+                "Acesso não permitido",
                 request,
                 null);
     }

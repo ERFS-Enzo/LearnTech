@@ -1,5 +1,6 @@
 package com.curso.learntech.api.controller;
 
+import com.curso.learntech.application.CredenciaisInvalidasException;
 import com.curso.learntech.repository.RecursoEmUsoException;
 import com.curso.learntech.api.dto.ApiError;
 import com.curso.learntech.repository.RecursoDuplicadoException;
@@ -84,6 +85,18 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiError> handleRecursoEmUso(
             RecursoEmUsoException ex, HttpServletRequest request) {
         return resposta(HttpStatus.CONFLICT, "Conflict", ex.getMessage(), request, null);
+    }
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    public ResponseEntity<ApiError> handleCredenciais(
+            CredenciaisInvalidasException exception,
+            HttpServletRequest request) {
+
+        return resposta(
+                HttpStatus.UNAUTHORIZED,
+                "Unauthorized",
+                "Credenciais inválidas",
+                request,
+                null);
     }
 
     private ResponseEntity<ApiError> resposta(

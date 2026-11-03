@@ -1,5 +1,6 @@
 package com.curso.learntech.api.controller;
 
+import org.springframework.security.test.context.support.WithMockUser;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@WithMockUser(username = "admin-teste", roles = "ADMINISTRADOR")
 class PessoaApiTest {
 
     @Autowired

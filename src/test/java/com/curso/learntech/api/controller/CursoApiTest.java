@@ -1,5 +1,6 @@
 package com.curso.learntech.api.controller;
 
+import org.springframework.security.test.context.support.WithMockUser;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import com.curso.learntech.domain.Autor;
 import com.curso.learntech.domain.CategoriaCurso;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@WithMockUser(username = "admin-teste", roles = "ADMINISTRADOR")
 class CursoApiTest {
     @Autowired
     private MockMvc mockMvc;
@@ -42,7 +44,7 @@ class CursoApiTest {
 
         String json = """
                 {
-                  "codigoCurso": "1",
+                  "codigoCurso": 1,
                   "descricao": "Curso criado pela API",
                   "cargaHoraria": 10.000,
                   "valorCurso": 49.90,
@@ -57,8 +59,7 @@ class CursoApiTest {
                         .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
-                .andExpect(jsonPath("$.codigoCurso").value("1"));
-    }
+                .andExpect(jsonPath("$.codigoCurso").value(1));    }
 
     @Test
     void deveRetornar400QuandoDadosInvalidos() throws Exception {

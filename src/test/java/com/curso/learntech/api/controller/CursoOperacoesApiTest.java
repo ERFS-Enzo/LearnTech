@@ -1,5 +1,6 @@
 package com.curso.learntech.api.controller;
 
+import org.springframework.security.test.context.support.WithMockUser;
 import com.curso.learntech.domain.CategoriaCurso;
 import com.curso.learntech.domain.Curso;
 import com.curso.learntech.domain.Status;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@WithMockUser(username = "admin-teste", roles = "ADMINISTRADOR")
 class CursoOperacoesApiTest {
 
     @Autowired
